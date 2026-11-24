@@ -1,0 +1,271 @@
+<title>Uhlíková stopa</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: klidná, čistá jednosloupcová aplikace pro studenty. Krémový papír, hluboká zelená jako text, zelená a modrá jako akcenty. Žádné ilustrace, jen jeden grafický znak (stopa) a segmentový ukazatel postupu. */
+:root {
+  --bg: #F3F1E7;
+  --card: #FFFFFF;
+  --ink: #12302A;
+  --muted: #5B6E65;
+  --line: #D9D8C6;
+  --green: #2B8754;
+  --green-soft: #D9ECDF;
+  --on-green: #FFFFFF;
+  --blue: #2A6AAE;
+  --blue-soft: #DCE8F4;
+  --amber: #B0701A;
+  --seg-low: #EBD9B8;
+  --seg-mid: #C5D9EE;
+  --seg-high: #BFE0CB;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1B17; --card: #172823; --ink: #E9F1EB; --muted: #9DB2A6; --line: #2A3F36;
+    --green: #5FCB8B; --green-soft: #1E3B2E; --on-green: #0C1A14;
+    --blue: #7BB2EA; --blue-soft: #1D3550; --amber: #E3AB50;
+    --seg-low: #4A3A1E; --seg-mid: #243F5C; --seg-high: #21463A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1B17; --card: #172823; --ink: #E9F1EB; --muted: #9DB2A6; --line: #2A3F36;
+  --green: #5FCB8B; --green-soft: #1E3B2E; --on-green: #0C1A14;
+  --blue: #7BB2EA; --blue-soft: #1D3550; --amber: #E3AB50;
+  --seg-low: #4A3A1E; --seg-mid: #243F5C; --seg-high: #21463A;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.5; font-weight: 400;
+  padding-block: 24px 40px;
+  padding-left: max(18px, env(safe-area-inset-left, 0px));
+  padding-right: max(18px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 620px; margin: 0 auto; }
+h1, h2 { font-family: var(--font-display); font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.screen[hidden] { display: none !important; }
+.screen { animation: rise .35s ease both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+.mark { width: 56px; height: 56px; border-radius: 16px; background: var(--green-soft); display: grid; place-items: center; }
+.mark svg { width: 34px; height: 34px; }
+.mark .sole, .mark .toe { fill: var(--green); }
+
+/* Úvod */
+.intro { display: grid; gap: 22px; justify-items: start; padding-top: clamp(24px, 9vh, 80px); }
+.intro h1 { font-size: clamp(3rem, 14vw, 5rem); }
+.intro h1 span { display: block; color: var(--green); }
+.intro p { margin: 0; max-width: 34ch; font-size: 1.15rem; color: var(--muted); }
+.intro .meta { font-size: .95rem; padding-top: 14px; border-top: 1px solid var(--line); width: 100%; max-width: 34ch; }
+.btn {
+  background: var(--green); color: var(--on-green); border: 0; border-radius: 16px;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; letter-spacing: -0.01em;
+  padding: 16px 32px; min-height: 58px; transition: transform .1s, filter .15s;
+}
+@media (hover: hover) { .btn:hover { filter: brightness(1.08); } }
+.btn:active { transform: scale(.97); }
+
+/* Kvíz */
+.meta-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.brand { font-family: var(--font-display); font-weight: 700; color: var(--green); letter-spacing: -0.01em; }
+.count { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.count strong { color: var(--ink); font-weight: 700; }
+.segs { display: grid; grid-template-columns: repeat(25, 1fr); gap: 3px; height: 8px; margin-bottom: clamp(26px, 6vh, 44px); }
+.segs i { border-radius: 4px; background: var(--line); transition: background .25s; }
+.segs i.on { background: var(--green); }
+.segs i.now { background: var(--blue); }
+.question { font-size: clamp(1.75rem, 7vw, 2.4rem); margin-bottom: 26px; outline: none; }
+.answers { display: grid; gap: 12px; }
+.answer {
+  display: flex; align-items: center; gap: 16px; width: 100%; text-align: left;
+  background: var(--card); border: 2px solid var(--line); border-radius: 18px;
+  padding: 14px 18px 14px 14px; min-height: 78px; font-size: 1.12rem; line-height: 1.3; font-weight: 500; color: var(--ink);
+  transition: transform .1s, border-color .15s, background .15s;
+}
+.answer .letter {
+  flex: none; width: 42px; height: 42px; border-radius: 12px; background: var(--blue-soft); color: var(--blue);
+  display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 1.2rem;
+}
+.answer .text { min-width: 0; overflow-wrap: anywhere; }
+@media (hover: hover) { .answer:hover { border-color: var(--blue); } }
+.answer:active { transform: scale(.985); }
+.answer.picked { border-color: var(--green); background: var(--green-soft); }
+.answer.picked .letter { background: var(--green); color: var(--on-green); }
+.answers.locked .answer { pointer-events: none; }
+
+/* Výsledek */
+.result { display: grid; gap: 16px; justify-items: start; padding-top: clamp(8px, 4vh, 32px); }
+.kicker { font-size: .85rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.result h2 { font-size: clamp(2.8rem, 13vw, 4.6rem); }
+.score { display: flex; align-items: baseline; gap: 10px; font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; }
+.score b { font-size: clamp(2.4rem, 11vw, 3.4rem); letter-spacing: -0.03em; font-weight: 700; }
+.score span { font-size: 1.2rem; color: var(--muted); font-weight: 600; }
+.result p { margin: 0; max-width: 34ch; font-size: 1.2rem; }
+.scale { width: 100%; padding: 4px 11px 0; margin-block: 8px 6px; }
+.scale-track { position: relative; height: 14px; display: flex; border-radius: 999px; }
+.scale-track span:nth-child(1) { width: 36%; background: var(--seg-low); border-radius: 999px 0 0 999px; }
+.scale-track span:nth-child(2) { width: 40%; background: var(--seg-mid); }
+.scale-track span:nth-child(3) { width: 24%; background: var(--seg-high); border-radius: 0 999px 999px 0; }
+.pin { position: absolute; top: 50%; width: 24px; height: 24px; border-radius: 50%; border: 4px solid var(--card); transform: translate(-50%, -50%); box-shadow: 0 0 0 2px var(--ink); }
+.ticks { position: relative; height: 22px; margin-top: 8px; font-size: .85rem; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.ticks span:first-child { transform: none; } .ticks span:last-child { transform: translateX(-100%); }
+.tier-hero h2 { color: var(--green); } .tier-hero .pin { background: var(--green); }
+.tier-mid h2 { color: var(--blue); } .tier-mid .pin { background: var(--blue); }
+.tier-baron h2 { color: var(--amber); } .tier-baron .pin { background: var(--amber); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+
+<main>
+  <section class="screen intro" id="screen-intro">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 64 64"><path class="sole" d="M32 28c-7 0-11 7-11 15 0 8 4 14 11 14s11-6 11-14c0-8-4-15-11-15z"/><circle class="toe" cx="20" cy="19" r="5"/><circle class="toe" cx="30" cy="13" r="5"/><circle class="toe" cx="41" cy="14" r="5"/><circle class="toe" cx="49" cy="22" r="4.5"/></svg>
+    </div>
+    <h1>Uhlíková <span>stopa</span></h1>
+    <p>Jak velkou stopu zanecháváš na planetě? Odpověz na 25 krátkých otázek o svých každodenních zvycích a zjisti, kde se svým chováním jsi.</p>
+    <button class="btn" id="start" type="button">Spustit hru</button>
+    <p class="meta">Hraješ sám za sebe, bez žebříčků. Zabere to asi 5 minut.</p>
+  </section>
+
+  <section class="screen" id="screen-quiz" hidden>
+    <div class="meta-row">
+      <span class="brand">Uhlíková stopa</span>
+      <span class="count" id="progress-text">Otázka <strong>1</strong> / 25</span>
+    </div>
+    <div class="segs" id="segs" role="progressbar" aria-valuemin="0" aria-valuemax="25" aria-valuenow="1" aria-label="Postup v kvízu"></div>
+    <h2 class="question" id="question" tabindex="-1"></h2>
+    <div class="answers" id="answers"></div>
+  </section>
+
+  <section class="screen result" id="screen-result" hidden>
+    <div class="kicker">Tvoje uhlíková stopa</div>
+    <h2 id="r-title"></h2>
+    <div class="score"><b id="r-score"></b><span>bodů</span></div>
+    <p id="r-text"></p>
+    <div class="scale" aria-hidden="true">
+      <div class="scale-track"><span></span><span></span><span></span><div class="pin" id="r-pin"></div></div>
+      <div class="ticks"><span style="left:0">2 500</span><span style="left:36%">4 300</span><span style="left:76%">6 300</span><span style="left:100%">7 500</span></div>
+    </div>
+    <button class="btn" id="again" type="button">Hrát znovu</button>
+  </section>
+</main>
+
+<script>
+// Pořadí možností u každé otázky: [nejekologičtější 300 b., střední 200 b., nejméně ekologická 100 b.]
+var QUESTIONS = [
+  { q: "Jak nejčastěji cestuješ do školy?", a: ["Pěšky nebo na kole", "MHD nebo vlakem", "Autem"] },
+  { q: "Jak dlouho se obvykle sprchuješ?", a: ["Do pěti minut", "Kolem deseti minut", "Klidně patnáct minut a víc"] },
+  { q: "Odcházíš z pokoje. Co uděláš se světlem?", a: ["Vždycky zhasnu", "Někdy zapomenu", "Nechám svítit"] },
+  { q: "Nabíječka je v zásuvce, ale nic nenabíjí. Co s ní?", a: ["Vytáhnu ji", "Někdy vytáhnu, někdy ne", "Zůstává zapojená pořád"] },
+  { q: "V bytě nebo na koleji je teplo, ale topení jede naplno. Co uděláš?", a: ["Ztlumím ho a vyvětrám jen krátce", "Nechám to, jak to je", "Otevřu okno dokořán a topení nechám jet"] },
+  { q: "Jak často jíš maso?", a: ["Jen výjimečně, většinou jím rostlinná jídla", "Několikrát týdně", "Skoro každý den"] },
+  { q: "Jak řešíš jídlo na cestách nebo mezi přednáškami?", a: ["Beru si ho z domova v krabičce", "Někdy si něco koupím", "Obvykle si koupím jídlo v jednorázovém obalu"] },
+  { q: "Jak to máš s kávou nebo čajem na cestu?", a: ["Do vlastního hrnku", "Občas do kelímku", "Skoro vždy do kelímku na jedno použití"] },
+  { q: "Co nejčastěji piješ přes den?", a: ["Vodu z kohoutku ve vlastní lahvi", "Někdy koupenou vodu nebo džus", "Hlavně nápoje v PET lahvích nebo plechovkách"] },
+  { q: "Jak třídíš odpad?", a: ["Důsledně, i bioodpad a kovy", "Papír a plast, zbytek do směsného", "Skoro vůbec"] },
+  { q: "Jak často vyhazuješ jídlo?", a: ["Skoro nikdy, zbytky dojím nebo využiji", "Občas něco vyhodím", "Často, nakupuju víc, než sním"] },
+  { q: "Jdeš nakupovat. Co si vezmeš na nákup?", a: ["Vlastní tašku", "Někdy koupím tašku v obchodě", "Skoro vždy novou igelitku"] },
+  { q: "Kde nejčastěji nakupuješ oblečení?", a: ["V second handu nebo nosím věci déle", "Občas koupím něco nového a kvalitního", "Často v řetězcích s rychlou módou"] },
+  { q: "Rozbije se ti mobil nebo boty. Co uděláš?", a: ["Pokusím se je opravit", "Koupím nové, staré odevzdám k recyklaci", "Vyhodím je a koupím nové"] },
+  { q: "Jak často měníš telefon?", a: ["Používám ho, dokud funguje", "Zhruba po třech až čtyřech letech", "Skoro každý rok mám nový model"] },
+  { q: "Co děláš s notebookem, když ho nepoužíváš?", a: ["Vypnu ho", "Uspím ho", "Nechám ho zapnutý celý den"] },
+  { q: "Jak cestuješ na delší výlety nebo na dovolenou?", a: ["Vlakem nebo autobusem", "Autem", "Letadlem"] },
+  { q: "Jak zacházíš se skripty a studijními materiály?", a: ["Čtu je na displeji", "Tisknu jen to nejnutnější a oboustranně", "Tisknu všechno jednostranně"] },
+  { q: "Odkud pocházejí potraviny, které nakupuješ?", a: ["Hlavně sezónní a místní", "Mix místních a dovážených", "Většinou dovážené a hodně balené"] },
+  { q: "Jak nakupuješ přes e-shopy?", a: ["Zřídka a všechno najednou", "Pravidelně, ale s rozmyslem", "Skoro každý týden a často vracím"] },
+  { q: "Jak vypadá tvoje praní?", a: ["Plná pračka na 30 až 40 °C", "Pračka zpola prázdná", "Každá věc zvlášť na vysoké teplotě"] },
+  { q: "Jak sušíš prádlo?", a: ["Na šňůře nebo na sušáku", "Většinou na sušáku, občas v sušičce", "Pořád v sušičce"] },
+  { q: "Kam patří slupky, kávová sedlina a zbytky zeleniny?", a: ["Na kompost nebo do hnědé popelnice", "Někdy tam, někdy do koše", "Do směsného odpadu"] },
+  { q: "Co uděláš s vybitými bateriemi a starou elektronikou?", a: ["Odevzdám je na sběrné místo", "Zůstanou doma v šuplíku", "Vyhodím je do koše"] },
+  { q: "Zařizuješ si byt nebo kolej. Odkud bude vybavení?", a: ["Z bazaru nebo od známých", "Část nové, část použité", "Všechno nové z obchodu"] }
+];
+var TOTAL = QUESTIONS.length;
+var POINTS = [300, 200, 100];
+var TIERS = [
+  { min: 6300, cls: "tier-hero", title: "Eko-hrdina", text: "Skvělá práce! Tvoje každodenní zvyky chrání planetu a tvoje uhlíková stopa je minimální." },
+  { min: 4300, cls: "tier-mid", title: "Zlatý střed", text: "Děláš spoustu dobrých věcí, ale v pár oblastech (třeba při sprchování, dopravě nebo třídění) máš ještě rezervy." },
+  { min: 0, cls: "tier-baron", title: "Uhlíkový baron", text: "Tvoje uhlíková stopa je hodně velká! Zkus příště chodit víc pěšky, šetřit vodou i elektřinou a dávat věcem druhou šanci." }
+];
+
+var idx = 0, score = 0, busy = false;
+var $ = function (id) { return document.getElementById(id); };
+
+function buildSegs() {
+  var s = $("segs");
+  s.textContent = "";
+  for (var i = 0; i < TOTAL; i++) s.appendChild(document.createElement("i"));
+}
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function show(name) {
+  ["intro", "quiz", "result"].forEach(function (n) { $("screen-" + n).hidden = (n !== name); });
+  window.scrollTo(0, 0);
+}
+function renderQuestion() {
+  var item = QUESTIONS[idx];
+  busy = false;
+  $("progress-text").innerHTML = "Otázka <strong>" + (idx + 1) + "</strong> / " + TOTAL;
+  $("segs").setAttribute("aria-valuenow", String(idx + 1));
+  var segs = $("segs").children;
+  for (var s = 0; s < segs.length; s++) segs[s].className = s < idx ? "on" : (s === idx ? "now" : "");
+  $("question").textContent = item.q;
+  var box = $("answers");
+  box.className = "answers";
+  box.textContent = "";
+  var options = shuffle(item.a.map(function (text, i) { return { text: text, points: POINTS[i] }; }));
+  options.forEach(function (opt, i) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "answer";
+    var l = document.createElement("span"); l.className = "letter"; l.textContent = "ABC".charAt(i);
+    var t = document.createElement("span"); t.className = "text"; t.textContent = opt.text;
+    b.appendChild(l); b.appendChild(t);
+    b.addEventListener("click", function () { choose(b, opt.points); });
+    box.appendChild(b);
+  });
+}
+function choose(btn, points) {
+  if (busy) return;
+  busy = true;
+  score += points;
+  btn.classList.add("picked");
+  $("answers").classList.add("locked");
+  setTimeout(function () {
+    idx++;
+    if (idx < TOTAL) { renderQuestion(); $("question").focus({ preventScroll: true }); }
+    else finish();
+  }, 380);
+}
+function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+function finish() {
+  var tier = TIERS.filter(function (t) { return score >= t.min; })[0];
+  $("screen-result").className = "screen result " + tier.cls;
+  $("r-title").textContent = tier.title;
+  $("r-score").textContent = fmt(score);
+  $("r-text").textContent = tier.text;
+  var min = TOTAL * 100, max = TOTAL * 300;
+  $("r-pin").style.left = ((score - min) / (max - min) * 100) + "%";
+  show("result");
+}
+function start() {
+  idx = 0; score = 0;
+  buildSegs();
+  renderQuestion();
+  show("quiz");
+}
+$("start").addEventListener("click", start);
+$("again").addEventListener("click", start);
+</script>
